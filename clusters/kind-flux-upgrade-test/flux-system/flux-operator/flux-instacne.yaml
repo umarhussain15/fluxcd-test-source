@@ -1,0 +1,15 @@
+apiVersion: fluxcd.controlplane.io/v1
+kind: FluxInstance
+metadata:
+  name: flux
+  namespace: flux-system
+spec:
+  distribution:
+    version: "2.x"
+    registry: "ghcr.io/fluxcd"
+  sync:
+    kind: GitRepository
+    url: "ssh://git@github.com/umarhussain15/flux-upgrade-test-2_2-2_4.git"
+    ref: "refs/heads/trunk"
+    path: "./clusters/kind-flux-upgrade-test"
+    pullSecret: "flux-system"

@@ -3,3 +3,4 @@ namespace: flux-system
 resources:
   - helm-repo.yaml
   - helmrelease.yaml
+  - flux-instance.yaml
