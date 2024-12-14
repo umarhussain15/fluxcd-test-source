@@ -14,4 +14,4 @@ spec:
   values:
     replicaCount: 2
     image:
-      tag: 5.0.0 # {"$imagepolicy": "flux-system:podinfo:tag"}
+      tag: 5.1.4 # {"$imagepolicy": "flux-system:podinfo:tag"}
