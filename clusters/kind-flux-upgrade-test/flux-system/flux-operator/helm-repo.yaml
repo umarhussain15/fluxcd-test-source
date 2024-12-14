@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: controlplaneio
+spec:
+  interval: 1m
+  url: oci://ghcr.io/controlplaneio-fluxcd/charts/
+  type: oci
