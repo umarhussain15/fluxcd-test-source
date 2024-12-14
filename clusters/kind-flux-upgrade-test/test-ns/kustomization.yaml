@@ -1,0 +1,6 @@
+kind: Kustomization
+namespace: test-ns
+resources:
+  - namespace.yaml
+  - helm-repo.yaml
+  - helmrelease.yaml
