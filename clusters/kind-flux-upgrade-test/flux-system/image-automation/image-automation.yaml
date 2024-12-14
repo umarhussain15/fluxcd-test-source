@@ -1,0 +1,41 @@
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: flux-system
+spec:
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  git:
+    checkout:
+      ref:
+        branch: trunk
+    push:
+      branch: trunk
+    commit:
+      author:
+        email: fluxcdbot@github.com
+        name: fluxcdbot
+      messageTemplate: |
+        ci(flux): automated image update {{ .AutomationObject }}
+
+        Automation name: {{ .AutomationObject }}
+
+        Files:
+        {{ range $filename, $_ := .Updated.Files -}}
+        - {{ $filename }}
+        {{ end -}}
+
+        Objects:
+        {{ range $resource, $_ := .Updated.Objects -}}
+        - {{ $resource.Kind }} {{ $resource.Name }}
+        {{ end -}}
+
+        Images:
+        {{ range .Updated.Images -}}
+        - {{.}}
+        {{ end -}}
+  update:
+    path: ./clusters/kind-flux-upgrade-test
+    strategy: Setters
