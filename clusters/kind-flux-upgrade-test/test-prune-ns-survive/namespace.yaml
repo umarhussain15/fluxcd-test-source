@@ -1,6 +1,0 @@
-kind: Namespace
-apiVersion: v1
-metadata: 
-  name: test-prune-ns-survive
-annotations:
-  kustomize.toolkit.fluxcd.io/prune: disabled

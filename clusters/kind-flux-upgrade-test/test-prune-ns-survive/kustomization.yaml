@@ -1,6 +1,0 @@
-kind: Kustomization
-namespace: test-prune-ns-survive
-resources:
-  - namespace.yaml
-  - helm-repo.yaml
-  - helmrelease.yaml
