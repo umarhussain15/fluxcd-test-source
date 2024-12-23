@@ -9,7 +9,7 @@ spec:
     registry: "ghcr.io/fluxcd"
   sync:
     kind: GitRepository
-    url: "ssh://git@github.com/umarhussain15/flux-upgrade-with-operator-test.git"
+    url: "ssh://git@github.com/umarhussain15/fluxcd-test-source.git"
     ref: "refs/heads/trunk"
     path: "./clusters/kind-flux-upgrade-test"
     pullSecret: "flux-system"

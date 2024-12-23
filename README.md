@@ -1,6 +1,6 @@
-# flux-upgrade-test
+# fluxcd-test-source
 
-Repo to use as a source of Flux and test it's upgrades with Flux Operator
+Repo to use as a source of Flux and test it's various operations
 
 ## TODOs
 
