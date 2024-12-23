@@ -2,6 +2,11 @@
 
 Repo to use as a source of Flux and test it's upgrades with Flux Operator
 
+## TODOs
+
+- [ ] Add setup scripts to initiate kind cluster with v 2.2 of flux
+- [ ] Add branches for different versions to simulate version upgrade of flux
+
 ## Migrating the Flux bootstrap installations to Flux Operator
 
 ### To adopt running flux controllers created by `flux bootstrap` cli
