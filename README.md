@@ -4,7 +4,6 @@ Repo to use as a source of Flux and test it's various operations
 
 ## TODOs
 
-- [ ] Add setup scripts to initiate kind cluster with v 2.2 of flux
 - [ ] Add branches for different versions to simulate version upgrade of flux
 
 ## Migrating the Flux bootstrap installations to Flux Operator
