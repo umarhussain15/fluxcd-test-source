@@ -1,6 +1,5 @@
 kind: Kustomization
-namespace: test-ns
+namespace: test-prune-ns-survive
 resources:
   - namespace.yaml
-  - helm-repo.yaml
-  - helmrelease.yaml
+  - flux-kustomize.yaml

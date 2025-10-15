@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
 - ./flux-operator
 - ./image-automation
+- git-repo.yaml

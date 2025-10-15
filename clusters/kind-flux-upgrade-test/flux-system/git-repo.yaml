@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: flux-test-source
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  ref:
+    branch: trunk
+  secretRef:
+    name: flux-system
+  url: ssh://git@github.com/umarhussain15/fluxcd-test-source.git
