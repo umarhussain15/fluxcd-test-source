@@ -6,6 +6,7 @@ metadata:
 spec:
   interval: 10m0s
   path: ./namespaces/test-prune-ns-survive
+  prune: true
   sourceRef:
     kind: GitRepository
     namespace: flux-system
