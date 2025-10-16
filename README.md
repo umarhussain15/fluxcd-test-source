@@ -34,6 +34,7 @@ We have a cluster where flux controllers are already deployed using `flux bootst
 We want to switch our Kubernetes cluster and want to deploy all the resources tracked by Flux in old cluster. The old cluster is using flux operator to manage
 it's flux controllers.
 
+- Create the `flux-system` namespace in new cluster
 - We first need to create `Secret` inside the new cluster with the credentials of Git which will be used by flux operator.
   - We can use `flux` cli to easily create this secret. First make sure that kube context points to new cluster and there is a `flux-system` namespace present there.
   - Then run the following command to create a secret (We will show ssh private key, [but others are also possible](https://fluxcd.control-plane.io/operator/fluxinstance/#sync-configuration)):
@@ -49,7 +50,7 @@ it's flux controllers.
 - Since this a fresh cluster without any flux controller, we can't use `HelmRelease` currently for flux operator. [We will use `helm install`](https://fluxcd.control-plane.io/operator/install/#helm)and then later flux will adopt the install under existing HelmRelease for the operator.
 
     ```bash
-    helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts flux-operator \
+    helm install flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator \
     --namespace flux-system \
     --create-namespace
     ```
