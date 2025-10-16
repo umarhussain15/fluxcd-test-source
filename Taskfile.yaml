@@ -1,0 +1,155 @@
+version: 3
+
+vars:
+  FIRST_CLUSTER: first-cluster
+  SECOND_CLUSTER: second-cluster
+
+tasks:
+  create-first-cluster:
+    desc: start first testing cluster with kind
+    cmd: |
+      if kind get clusters | grep {{.FIRST_CLUSTER}} &> /dev/null; then
+        echo "kind cluster exists {{.FIRST_CLUSTER}}"
+      else
+        kind create cluster --name {{.FIRST_CLUSTER}}
+      fi
+  create-second-cluster:
+    desc: start second testing cluster with kind
+    cmd: |
+      if kind get clusters | grep {{.SECOND_CLUSTER}} &> /dev/null; then
+        echo "kind cluster exists {{.SECOND_CLUSTER}}"
+      else
+        kind create cluster --name {{.SECOND_CLUSTER}}
+      fi
+  create-all-clusters:
+    desc: start all test clusters with kind
+    cmds:
+      - task: create-first-cluster
+      - task: create-second-cluster
+
+  delete-first-cluster:
+    desc: delete first testing cluster with kind
+    cmd: kind delete cluster -n {{.FIRST_CLUSTER}} || true
+  delete-second-cluster:
+    desc: delete second testing cluster with kind
+    cmd: kind delete cluster -n {{.SECOND_CLUSTER}} || true
+  delete-all-clusters:
+    desc: delete all testing clusters
+    cmds:
+      - task: delete-first-cluster
+      - task: delete-second-cluster
+
+  export-kubeconfig-first-cluster:
+    desc: Export the kubeconfig of kind cluster to "$KUBECONFIG" location
+    cmd: kind export kubeconfig --name {{.FIRST_CLUSTER}}
+  export-kubeconfig-second-cluster:
+    desc: Export the kubeconfig of kind cluster to "$KUBECONFIG" location
+    cmd: kind export kubeconfig --name {{.SECOND_CLUSTER}}
+
+  k9s-with-kind-config-first-cluster:
+    desc: start k9s with kind cluster config exported in a temp file
+    env:
+      TMP_KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $TMP_KUBECONFIG
+      - kind export kubeconfig --name {{.FIRST_CLUSTER}} --kubeconfig $TMP_KUBECONFIG
+      - k9s --kubeconfig $TMP_KUBECONFIG
+      - rm $TMP_KUBECONFIG
+
+  k9s-with-kind-config-second-cluster:
+    desc: start k9s with kind cluster config exported in a temp file
+    env:
+      TMP_KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $TMP_KUBECONFIG
+      - kind export kubeconfig --name {{.SECOND_CLUSTER}} --kubeconfig $TMP_KUBECONFIG
+      - k9s --kubeconfig $TMP_KUBECONFIG
+      - rm $TMP_KUBECONFIG
+  create-flux-secret:
+    desc: Create a Flux Git secret
+    internal: true
+    interactive: true
+    vars:
+      CLUSTER: "{{.CLUSTER}}"
+    env:
+      KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $KUBECONFIG
+      - kind export kubeconfig --name {{.CLUSTER}} --kubeconfig $KUBECONFIG
+      - |
+        bash -c '
+          read -p "Enter Git URL (e.g. ssh://git@github.com/my-org/my-fleet.git): " URL
+          read -p "Enter private key path: " KEY_PATH
+          read -s -p "Enter SSH key password (if any, leave blank if none): " PASSWORD
+          echo
+          echo "Creating Flux secret..."
+          if [ -n "$PASSWORD" ]; then
+            flux create secret git flux-system \
+              --namespace flux-system \
+              --url="$URL" \
+              --private-key-file="$KEY_PATH" \
+              --password="$PASSWORD"
+          else
+            flux create secret git flux-system \
+              --namespace flux-system \
+              --url="$URL" \
+              --private-key-file="$KEY_PATH"
+          fi
+        '
+      - rm $KUBECONFIG
+  first-cluster-create-flux-secret:
+    interactive: true
+    desc:  creates flux git secret
+    cmd:
+      task: create-flux-secret
+      vars:
+        {CLUSTER: '{{.FIRST_CLUSTER}}' }
+  second-cluster-create-flux-secret:
+    desc:  creates flux git secret
+    cmd:
+      task: create-flux-secret
+      vars:
+        CLUSTER: '{{.SECOND_CLUSTER}}'
+  first-cluster-helm-install-flux-operator:
+    desc:   install flux operator in the cluster
+    env:
+      KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $KUBECONFIG
+      - kind export kubeconfig --name {{.FIRST_CLUSTER}} --kubeconfig $KUBECONFIG
+      - helm upgrade flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system --create-namespace --install
+      - rm $KUBECONFIG
+  second-cluster-helm-install-flux-operator:
+    desc: install flux operator in the cluster
+    env:
+      KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $KUBECONFIG
+      - kind export kubeconfig --name {{.SECOND_CLUSTER}} --kubeconfig $KUBECONFIG
+      - helm upgrade flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system --create-namespace --install
+      - rm $KUBECONFIG
+  first-cluster-apply-flux-instance:
+    desc:   apply flux instance with kubectl
+    env:
+      KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $KUBECONFIG
+      - kind export kubeconfig --name {{.FIRST_CLUSTER}} --kubeconfig $KUBECONFIG
+      - kubectl apply -f clusters/kind-flux-upgrade-test/flux-system/flux-operator/flux-instance.yaml
+      - rm $KUBECONFIG
+  second-cluster-apply-flux-instance:
+    desc:   apply flux instance with kubectl
+    env:
+      KUBECONFIG:
+        sh: mktemp
+    cmds:
+      - echo $KUBECONFIG
+      - kind export kubeconfig --name {{.SECOND_CLUSTER}} --kubeconfig $KUBECONFIG
+      - helm upgrade flux-operator oci://ghcr.io/controlplaneio-fluxcd/charts/flux-operator --namespace flux-system --create-namespace --install
+      - rm $KUBECONFIG
